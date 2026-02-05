@@ -1,0 +1,33 @@
+### Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### Spring Boot ###
+*.log
+*.log.*
+logs/
+
+### IDEs ###
+.idea/
+*.iml
+*.ipr
+*.iws
+
+.vscode/
+
+.settings/
+.project
+.classpath
+.factorypath
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Build ###
+build/
+out/
+
+### Misc ###
+*.swp
+*.swo
