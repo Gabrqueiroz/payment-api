@@ -69,6 +69,8 @@ Testes unitários (JUnit + Mockito)
 Documentação com Swagger
 Deploy em nuvem (AWS / Render)
 
+Obs: Por enquanto está apenas na branch de develop
+
 👨‍💻 Autor
 Gabriel Queiroz
 Backend Developer — Java & Spring Boot
