@@ -60,13 +60,13 @@ JDBC URL	jdbc:h2:mem:paymentdb
 User	sa
 Password	(em branco)
 
+Swagger do projeto : http://localhost:8080/swagger-ui/index.html#/
 
 📈 Próximas Evoluções
 
 Autenticação com JWT
 Extrato bancário por conta
 Testes unitários (JUnit + Mockito)
-Documentação com Swagger
 Deploy em nuvem (AWS / Render)
 
 Obs: Por enquanto está apenas na branch de develop
