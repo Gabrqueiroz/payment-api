@@ -3,7 +3,9 @@ package com.gabrielqueiroz.payment_api.controller;
 import com.gabrielqueiroz.payment_api.services.PaymentService;
 import com.gabrielqueiroz.payment_api.web.dtos.request.CreateAccountRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.request.CreateUserRequest;
+import com.gabrielqueiroz.payment_api.web.dtos.request.TransferRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.response.AccountResponse;
+import com.gabrielqueiroz.payment_api.web.dtos.response.TransferResponse;
 import com.gabrielqueiroz.payment_api.web.dtos.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,21 +27,14 @@ public class PaymentController {
     public ResponseEntity<AccountResponse> createAccount(@RequestBody CreateAccountRequest request) {
         return ResponseEntity.status(201).body(paymentService.createAccount(request));
     }
-}
 
-/*
-@PostMapping("/transfer")
-    public ResponseEntity<TransactionResponse> transfer(@RequestBody TransferRequest request) {
+    @PostMapping("/transfer")
+    public ResponseEntity<TransferResponse> transfer(@RequestBody TransferRequest request) {
         return ResponseEntity.ok(paymentService.transfer(request));
     }
 
-    curl -X POST http://localhost:8080/api/transactions/transfer \
--H "Content-Type: application/json" \
--d '{
-  "fromAccountNumber": "458921",
-  "toAccountNumber": "772144",
-  "amount": 500.00,
-  "description": "Payment for services"
-}'
- */
+}
+
+
+
 

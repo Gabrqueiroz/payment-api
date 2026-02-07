@@ -10,8 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "sb_transaction")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

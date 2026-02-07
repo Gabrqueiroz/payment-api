@@ -1,12 +1,17 @@
 package com.gabrielqueiroz.payment_api.services;
+import com.gabrielqueiroz.payment_api.enums.TransactionStatus;
+import com.gabrielqueiroz.payment_api.enums.TransactionType;
 import com.gabrielqueiroz.payment_api.models.AccountModel;
+import com.gabrielqueiroz.payment_api.models.TransactionModel;
 import com.gabrielqueiroz.payment_api.models.UserModel;
 import com.gabrielqueiroz.payment_api.repositorys.AccountRepository;
 import com.gabrielqueiroz.payment_api.repositorys.TransactionRepository;
 import com.gabrielqueiroz.payment_api.repositorys.UserRepository;
 import com.gabrielqueiroz.payment_api.web.dtos.request.CreateAccountRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.request.CreateUserRequest;
+import com.gabrielqueiroz.payment_api.web.dtos.request.TransferRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.response.AccountResponse;
+import com.gabrielqueiroz.payment_api.web.dtos.response.TransferResponse;
 import com.gabrielqueiroz.payment_api.web.dtos.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,54 +92,50 @@ public class PaymentService {
 
         }
     }
-    /* criaar
-    public TransactionResponse transfer(TransferRequest request) {
-        try {
-            if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new RuntimeException("Invalid transfer amount");
-            }
 
-            AccountModel fromAccount = accountRepository.findByNumberAccount(request.getFromAccountNumber())
-                    .orElseThrow(() -> new RuntimeException("Source account not found"));
+    @Transactional
+    public TransferResponse transfer(TransferRequest request) {
 
-            AccountModel toAccount = accountRepository.findByNumberAccount(request.getToAccountNumber())
-                    .orElseThrow(() -> new RuntimeException("Destination account not found"));
-
-            if (fromAccount.getBalance().compareTo(request.getAmount()) < 0) {
-                throw new RuntimeException("Insufficient balance");
-            }
-
-            // 💸 Atualiza saldos
-            fromAccount.setBalance(fromAccount.getBalance().subtract(request.getAmount()));
-            toAccount.setBalance(toAccount.getBalance().add(request.getAmount()));
-
-            accountRepository.save(fromAccount);
-            accountRepository.save(toAccount);
-
-            // 🧾 Salva transação
-            TransactionModel transaction = TransactionModel.builder()
-                    .fromAccount(fromAccount)
-                    .toAccount(toAccount)
-                    .amount(request.getAmount())
-                    .description(request.getDescription())
-                    .createdAt(LocalDateTime.now())
-                    .build();
-
-            transactionRepository.save(transaction);
-
-            return TransactionResponse.builder()
-                    .transactionId(transaction.getId())
-                    .fromAccount(fromAccount.getNumberAccount())
-                    .toAccount(toAccount.getNumberAccount())
-                    .amount(transaction.getAmount())
-                    .createdAt(transaction.getCreatedAt())
-                    .status("SUCCESS")
-                    .build();
-
-        } catch (Exception e) {
-            log.error("Error during transfer", e);
-            throw new RuntimeException("Transfer failed: " + e.getMessage());
+        if (request.getValue() == null || request.getValue().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Invalid transfer amount");
         }
-    } */
 
+        AccountModel fromAccount = accountRepository.findByNumberAccount(request.getFromAccountNumber())
+                .orElseThrow(() -> new RuntimeException("Source account not found"));
+
+        AccountModel toAccount = accountRepository.findByNumberAccount(request.getToAccountNumber())
+                .orElseThrow(() -> new RuntimeException("Destination account not found"));
+
+        if (fromAccount.getBalance().compareTo(request.getValue()) < 0) {
+            throw new RuntimeException("Insufficient balance");
+        }
+
+        fromAccount.setBalance(fromAccount.getBalance().subtract(request.getValue()));
+        toAccount.setBalance(toAccount.getBalance().add(request.getValue()));
+
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
+
+        TransactionModel transaction = TransactionModel.builder()
+                .fromAccount(fromAccount)
+                .toAccount(toAccount)
+                .amount(request.getValue())
+                .type(TransactionType.TRANSFER)
+                .status(TransactionStatus.COMPLETED)
+                .description("Transfer between accounts")
+                .createdAt(LocalDateTime.now())
+                .processedAt(LocalDateTime.now())
+                .build();
+
+        transactionRepository.save(transaction);
+
+        return TransferResponse.builder()
+                .transactionId(transaction.getId())
+                .fromAccount(fromAccount.getNumberAccount())
+                .toAccount(toAccount.getNumberAccount())
+                .amount(transaction.getAmount())
+                .transactionDate(transaction.getCreatedAt())
+                .status(transaction.getStatus().name())
+                .build();
+    }
 }
