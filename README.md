@@ -17,7 +17,8 @@ O projeto foi construído com foco em boas práticas de backend, regras de negó
 
 🗺️ Modelagem de Dados
 
-O sistema possui três entidades principais:
+O sistema possui três entidades principais: <br/>
+
 <img width="646" height="495" alt="image" src="https://github.com/user-attachments/assets/e3504b2a-883d-449b-894c-9e6314de337e" />
 
 ⚙️ Como Rodar o Projeto
