@@ -2,8 +2,7 @@ package com.gabrielqueiroz.payment_api.web.dtos.request;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
