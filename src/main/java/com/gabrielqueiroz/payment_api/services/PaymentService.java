@@ -4,11 +4,14 @@ import com.gabrielqueiroz.payment_api.enums.TransactionType;
 import com.gabrielqueiroz.payment_api.models.AccountModel;
 import com.gabrielqueiroz.payment_api.models.TransactionModel;
 import com.gabrielqueiroz.payment_api.models.UserModel;
+import com.gabrielqueiroz.payment_api.web.dtos.response.AuthResponse;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.gabrielqueiroz.payment_api.repositorys.AccountRepository;
 import com.gabrielqueiroz.payment_api.repositorys.TransactionRepository;
 import com.gabrielqueiroz.payment_api.repositorys.UserRepository;
 import com.gabrielqueiroz.payment_api.web.dtos.request.CreateAccountRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.request.CreateUserRequest;
+import com.gabrielqueiroz.payment_api.web.dtos.request.LoginRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.request.TransferRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.response.AccountResponse;
 import com.gabrielqueiroz.payment_api.web.dtos.response.TransferResponse;
@@ -31,12 +34,15 @@ public class PaymentService {
     private  final AccountRepository accountRepository;
     private  final TransactionRepository transactionRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
+
     public UserResponse createUser(CreateUserRequest request) {
         try {
             UserModel user = UserModel.builder()
                     .fullName(request.getFullName())
                     .email(request.getEmail())
-                    .password(request.getPassword())
+                    .password(passwordEncoder.encode(request.getPassword()))
                     .createdAt(LocalDateTime.now())
                     .build();
 
@@ -95,47 +101,84 @@ public class PaymentService {
 
     @Transactional
     public TransferResponse transfer(TransferRequest request) {
+        try {
+            if (request.getValue() == null || request.getValue().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new RuntimeException("Invalid transfer amount");
+            }
 
-        if (request.getValue() == null || request.getValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Invalid transfer amount");
+            AccountModel fromAccount = accountRepository.findByNumberAccount(request.getFromAccountNumber())
+                    .orElseThrow(() -> new RuntimeException("Source account not found"));
+
+            AccountModel toAccount = accountRepository.findByNumberAccount(request.getToAccountNumber())
+                    .orElseThrow(() -> new RuntimeException("Destination account not found"));
+
+            if (fromAccount.getBalance().compareTo(request.getValue()) < 0) {
+                throw new RuntimeException("Insufficient balance");
+            }
+
+            fromAccount.setBalance(fromAccount.getBalance().subtract(request.getValue()));
+            toAccount.setBalance(toAccount.getBalance().add(request.getValue()));
+
+            accountRepository.save(fromAccount);
+            accountRepository.save(toAccount);
+
+            TransactionModel transaction = TransactionModel.builder()
+                    .fromAccount(fromAccount)
+                    .toAccount(toAccount)
+                    .amount(request.getValue())
+                    .type(TransactionType.TRANSFER)
+                    .status(TransactionStatus.COMPLETED)
+                    .description("Transfer between accounts")
+                    .createdAt(LocalDateTime.now())
+                    .processedAt(LocalDateTime.now())
+                    .build();
+
+            transactionRepository.save(transaction);
+
+            return TransferResponse.builder()
+                    .transactionId(transaction.getId())
+                    .fromAccount(fromAccount.getNumberAccount())
+                    .toAccount(toAccount.getNumberAccount())
+                    .amount(transaction.getAmount())
+                    .transactionDate(transaction.getCreatedAt())
+                    .status(transaction.getStatus().name())
+                    .build();
+        }catch (Exception e) {
+            log.error("Error transer user with email: {}", e);
+            throw new RuntimeException("Error creating user");
+
         }
-
-        AccountModel fromAccount = accountRepository.findByNumberAccount(request.getFromAccountNumber())
-                .orElseThrow(() -> new RuntimeException("Source account not found"));
-
-        AccountModel toAccount = accountRepository.findByNumberAccount(request.getToAccountNumber())
-                .orElseThrow(() -> new RuntimeException("Destination account not found"));
-
-        if (fromAccount.getBalance().compareTo(request.getValue()) < 0) {
-            throw new RuntimeException("Insufficient balance");
-        }
-
-        fromAccount.setBalance(fromAccount.getBalance().subtract(request.getValue()));
-        toAccount.setBalance(toAccount.getBalance().add(request.getValue()));
-
-        accountRepository.save(fromAccount);
-        accountRepository.save(toAccount);
-
-        TransactionModel transaction = TransactionModel.builder()
-                .fromAccount(fromAccount)
-                .toAccount(toAccount)
-                .amount(request.getValue())
-                .type(TransactionType.TRANSFER)
-                .status(TransactionStatus.COMPLETED)
-                .description("Transfer between accounts")
-                .createdAt(LocalDateTime.now())
-                .processedAt(LocalDateTime.now())
-                .build();
-
-        transactionRepository.save(transaction);
-
-        return TransferResponse.builder()
-                .transactionId(transaction.getId())
-                .fromAccount(fromAccount.getNumberAccount())
-                .toAccount(toAccount.getNumberAccount())
-                .amount(transaction.getAmount())
-                .transactionDate(transaction.getCreatedAt())
-                .status(transaction.getStatus().name())
-                .build();
     }
+
+    public AuthResponse login(LoginRequest request) {
+        try {
+
+            UserModel user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+            boolean passwordMatches = passwordEncoder.matches(
+                    request.getPassword(),
+                    user.getPassword()
+            );
+
+            if (!passwordMatches) {
+                throw new RuntimeException("Invalid email or password");
+            }
+
+            return AuthResponse.builder()
+                    .userId(user.getId())
+                    .fullName(user.getFullName())
+                    .email(user.getEmail())
+                     .createdAt(user.getCreatedAt())
+                    .build();
+
+        } catch (RuntimeException e) {
+            log.warn("Login failed for email: {}", request.getEmail());
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error during login for email: {}", request.getEmail(), e);
+            throw new RuntimeException("Error while trying to login");
+        }
+    }
+
 }

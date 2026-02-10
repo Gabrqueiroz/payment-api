@@ -1,10 +1,13 @@
 package com.gabrielqueiroz.payment_api.controller;
 
+import com.gabrielqueiroz.payment_api.models.UserModel;
 import com.gabrielqueiroz.payment_api.services.PaymentService;
 import com.gabrielqueiroz.payment_api.web.dtos.request.CreateAccountRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.request.CreateUserRequest;
+import com.gabrielqueiroz.payment_api.web.dtos.request.LoginRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.request.TransferRequest;
 import com.gabrielqueiroz.payment_api.web.dtos.response.AccountResponse;
+import com.gabrielqueiroz.payment_api.web.dtos.response.AuthResponse;
 import com.gabrielqueiroz.payment_api.web.dtos.response.TransferResponse;
 import com.gabrielqueiroz.payment_api.web.dtos.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +42,17 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.transfer(request));
     }
 
+    @Operation(
+            summary = "Autenticação de Login de um usuário",
+            description = "Valida usuário e senha e retorna os dados básicos do usuário autenticado"
+    )
+    @PostMapping("/auth/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+
+        AuthResponse response = paymentService.login(request);
+
+        return ResponseEntity.ok(response);
+    }
 }
 
 

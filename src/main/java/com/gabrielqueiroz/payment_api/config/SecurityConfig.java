@@ -20,17 +20,13 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/api/**").permitAll() // libera sua API
-                        .anyRequest().permitAll() // 👈 libera TODO o resto também
+                        .requestMatchers("/api/**").permitAll()
+                        .anyRequest().permitAll()
                 )
-                .formLogin(form -> form.disable())   // desativa tela de login
-                .httpBasic(basic -> basic.disable()); // desativa auth básica
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable());
 
         return http.build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }
