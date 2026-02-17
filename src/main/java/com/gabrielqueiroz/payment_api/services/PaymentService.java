@@ -1,10 +1,13 @@
 package com.gabrielqueiroz.payment_api.services;
 import com.gabrielqueiroz.payment_api.enums.TransactionStatus;
 import com.gabrielqueiroz.payment_api.enums.TransactionType;
+import com.gabrielqueiroz.payment_api.messaging.config.RabbitConfig;
+import com.gabrielqueiroz.payment_api.messaging.event.TransferMessage;
 import com.gabrielqueiroz.payment_api.models.AccountModel;
 import com.gabrielqueiroz.payment_api.models.TransactionModel;
 import com.gabrielqueiroz.payment_api.models.UserModel;
 import com.gabrielqueiroz.payment_api.web.dtos.response.AuthResponse;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.gabrielqueiroz.payment_api.repositorys.AccountRepository;
 import com.gabrielqueiroz.payment_api.repositorys.TransactionRepository;
@@ -33,9 +36,8 @@ public class PaymentService {
     private final  UserRepository userRepository;
     private  final AccountRepository accountRepository;
     private  final TransactionRepository transactionRepository;
-
+    private final RabbitTemplate rabbitTemplate;
     private final PasswordEncoder passwordEncoder;
-
 
     public UserResponse createUser(CreateUserRequest request) {
         try {
@@ -121,14 +123,12 @@ public class PaymentService {
                 throw new RuntimeException("Insufficient balance");
             }
 
-            // 🔹 Atualiza saldos
             fromAccount.setBalance(fromAccount.getBalance().subtract(request.getValue()));
             toAccount.setBalance(toAccount.getBalance().add(request.getValue()));
 
             accountRepository.save(fromAccount);
             accountRepository.save(toAccount);
 
-            // 🔹 Cria transação
             TransactionModel transaction = TransactionModel.builder()
                     .fromAccount(fromAccount)
                     .toAccount(toAccount)
@@ -142,7 +142,24 @@ public class PaymentService {
 
             TransactionModel savedTransaction = transactionRepository.save(transaction);
 
-            // 🔹 Retorno
+            TransferMessage message = TransferMessage.builder()
+                    .transactionId(savedTransaction.getId())  // gera um UUID
+                    .fromAccount(fromAccount.getNumberAccount())
+                    .toAccount(toAccount.getNumberAccount())
+                    .amount(savedTransaction.getAmount())
+                    .transactionDate(savedTransaction.getCreatedAt())
+                    .build();
+
+
+            rabbitTemplate.convertAndSend(
+                    RabbitConfig.TRANSFER_EXCHANGE,
+                    RabbitConfig.TRANSFER_ROUTING_KEY,
+                    message
+            );
+
+            log.info("Transfer message sent to RabbitMQ: {}", message);
+
+
             return TransferResponse.builder()
                     .transactionId(savedTransaction.getId())
                     .fromAccount(fromAccount.getNumberAccount())
@@ -152,6 +169,7 @@ public class PaymentService {
                     .status(savedTransaction.getStatus().name())
                     .build();
         } catch (Exception e) {
+            log.error("Error transfer payment: {}", e.getCause(), e.getMessage());
             throw new RuntimeException(e);
         }
     }
