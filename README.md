@@ -1,32 +1,39 @@
-# payment-api
-Payment API — Digital Banking Backend
+💳 Payment API — Backend de Banco Digital
 
-API REST desenvolvida em Java + Spring Boot que simula operações essenciais de um banco digital, incluindo criação de usuários, contas bancárias e transferências financeiras entre contas.
+API REST em Java + Spring Boot que simula operações essenciais de um banco digital: criação de usuários, contas bancárias e transferências financeiras entre contas.
 
-O projeto foi construído com foco em boas práticas de backend, regras de negócio financeiras e organização arquitetural, servindo como demonstração técnica de um sistema transacional.
+O projeto foi desenvolvido como demonstração técnica, focando em boas práticas de backend, regras de negócio financeiras e organização arquitetural.
 
 🧠 Conceitos e Boas Práticas Demonstradas
 
-✔ Arquitetura em camadas (Controller → Service → Repository)
-✔ Modelagem relacional com JPA
-✔ Regras de negócio para validação de saldo
-✔ Controle transacional em transferências
-✔ Tratamento de exceções e logs
-✔ API REST seguindo padrões HTTP
-✔ Organização de DTOs para entrada e saída de dados
+Arquitetura em camadas: Controller → Service → Repository
+
+Modelagem relacional com JPA/Hibernate
+
+Regras de negócio para validação de saldo
+
+Controle transacional em transferências
+
+Tratamento de exceções e logs estruturados
+
+API REST seguindo padrões HTTP
+
+DTOs para entrada e saída de dados, mantendo a separação de camadas
+
+Integração com RabbitMQ para processamento assíncrono de transferências
 
 🗺️ Modelagem de Dados
 
-O sistema possui três entidades principais: <br/>
+O sistema possui três entidades principais:
 
-<img width="646" height="495" alt="image" src="https://github.com/user-attachments/assets/e3504b2a-883d-449b-894c-9e6314de337e" />
-
+<img width="646" height="495" alt="Modelo de dados Payment API" src="https://github.com/user-attachments/assets/e3504b2a-883d-449b-894c-9e6314de337e" />
 ⚙️ Como Rodar o Projeto
 ✅ Pré-requisitos
 
-Antes de iniciar, você precisa ter instalado:
 Java 17 ou superior
+
 Maven 3.8+
+
 Git
 
 📥 Clonar o Repositório
@@ -35,43 +42,43 @@ cd payment-api
 
 ▶️ Executar a Aplicação
 ./mvnw spring-boot:run
-
-ou
-
+# ou
 mvn spring-boot:run
 
 
 A API estará disponível em:
-
 http://localhost:8080
 
 🗄️ Banco de Dados (H2 Console)
 
-Este projeto utiliza banco em memória para facilitar testes.
+Banco em memória para facilitar testes:
 
-Acesse:
+URL: jdbc:h2:mem:paymentdb
 
+Usuário: sa
+
+Senha: (em branco)
+
+Acesse o console:
 http://localhost:8080/h2-console
 
+📝 Documentação da API
 
-Use as seguintes configurações:
-
-Campo	Valor
-JDBC URL	jdbc:h2:mem:paymentdb
-User	sa
-Password	(em branco)
-
-Swagger do projeto : http://localhost:8080/swagger-ui/index.html#/
+Swagger UI disponível em:
+http://localhost:8080/swagger-ui/index.html#/
 
 📈 Próximas Evoluções
 
-Autenticação com JWT
-Extrato bancário por conta
-Testes unitários (JUnit + Mockito)
-Deploy em nuvem (AWS / Render)
+Autenticação com JWT + Keycloak
 
-Obs: Por enquanto está apenas na branch de develop
+Histórico/Extrato bancário por conta
+
+Testes unitários e integração (JUnit + Mockito)
+
+Deploy em nuvem (AWS, Render ou Railway)
+
+Melhorias em mensageria e logs assíncronos
 
 👨‍💻 Autor
-Gabriel Queiroz
-Backend Developer — Java & Spring Boot
+
+Gabriel Queiroz — Backend Developer (Java & Spring Boot)
