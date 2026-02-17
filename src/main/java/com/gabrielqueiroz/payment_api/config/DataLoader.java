@@ -14,57 +14,57 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
-public class DataLoader implements CommandLineRunner {
+    public class DataLoader implements CommandLineRunner {
 
-    private final UserRepository userRepository;
-    private final AccountRepository accountRepository;
-    private final PasswordEncoder passwordEncoder;
+        private final UserRepository userRepository;
+        private final AccountRepository accountRepository;
+        private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public void run(String... args) {
+        @Override
+        public void run(String... args) {
 
-        if (userRepository.count() > 0) return;
+            if (userRepository.count() > 0) return;
 
-        UserModel user1 = UserModel.builder()
-                .fullName("João Silva")
-                .email("joao@mock.com")
-                .password(passwordEncoder.encode("123456"))
-                .createdAt(LocalDateTime.now())
-                .build();
+            UserModel user1 = UserModel.builder()
+                    .fullName("João Silva")
+                    .email("joao@mock.com")
+                    .password(passwordEncoder.encode("123456"))
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
-        userRepository.save(user1);
+            userRepository.save(user1);
 
-        AccountModel acc1 = AccountModel.builder()
-                .numberAccount("000123-1")
-                .agency("0001")
-                .balance(new BigDecimal("1500.00"))
-                .createdAt(LocalDateTime.now())
-                .user(user1)
-                .build();
+            AccountModel acc1 = AccountModel.builder()
+                    .numberAccount("000123-1")
+                    .agency("0001")
+                    .balance(new BigDecimal("1500.00"))
+                    .createdAt(LocalDateTime.now())
+                    .user(user1)
+                    .build();
 
-        accountRepository.save(acc1);
+            accountRepository.save(acc1);
 
-        UserModel user2 = UserModel.builder()
-                .fullName("Maria Souza")
-                .email("maria@mock.com")
-                .password(passwordEncoder.encode("123456"))
-                .createdAt(LocalDateTime.now())
-                .build();
+            UserModel user2 = UserModel.builder()
+                    .fullName("Maria Souza")
+                    .email("maria@mock.com")
+                    .password(passwordEncoder.encode("123456"))
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
-        userRepository.save(user2);
+            userRepository.save(user2);
 
-        AccountModel acc2 = AccountModel.builder()
-                .numberAccount("000124-1")
-                .agency("0001")
-                .balance(new BigDecimal("3200.00"))
-                .createdAt(LocalDateTime.now())
-                .user(user2)
-                .build();
+            AccountModel acc2 = AccountModel.builder()
+                    .numberAccount("000124-1")
+                    .agency("0001")
+                    .balance(new BigDecimal("3200.00"))
+                    .createdAt(LocalDateTime.now())
+                    .user(user2)
+                    .build();
 
-        accountRepository.save(acc2);
+            accountRepository.save(acc2);
 
-        System.out.println("🚀 Dados mock criados!");
+            System.out.println("🚀 Dados mock criados!");
+        }
     }
-}
 
 

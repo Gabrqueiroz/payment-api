@@ -102,8 +102,13 @@ public class PaymentService {
     @Transactional
     public TransferResponse transfer(TransferRequest request) {
         try {
+
             if (request.getValue() == null || request.getValue().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new RuntimeException("Invalid transfer amount");
+                throw new IllegalArgumentException("Invalid transfer amount");
+            }
+
+            if (request.getFromAccountNumber().equals(request.getToAccountNumber())) {
+                throw new IllegalArgumentException("Cannot transfer to the same account");
             }
 
             AccountModel fromAccount = accountRepository.findByNumberAccount(request.getFromAccountNumber())
@@ -116,12 +121,14 @@ public class PaymentService {
                 throw new RuntimeException("Insufficient balance");
             }
 
+            // 🔹 Atualiza saldos
             fromAccount.setBalance(fromAccount.getBalance().subtract(request.getValue()));
             toAccount.setBalance(toAccount.getBalance().add(request.getValue()));
 
             accountRepository.save(fromAccount);
             accountRepository.save(toAccount);
 
+            // 🔹 Cria transação
             TransactionModel transaction = TransactionModel.builder()
                     .fromAccount(fromAccount)
                     .toAccount(toAccount)
@@ -133,20 +140,19 @@ public class PaymentService {
                     .processedAt(LocalDateTime.now())
                     .build();
 
-            transactionRepository.save(transaction);
+            TransactionModel savedTransaction = transactionRepository.save(transaction);
 
+            // 🔹 Retorno
             return TransferResponse.builder()
-                    .transactionId(transaction.getId())
+                    .transactionId(savedTransaction.getId())
                     .fromAccount(fromAccount.getNumberAccount())
                     .toAccount(toAccount.getNumberAccount())
-                    .amount(transaction.getAmount())
-                    .transactionDate(transaction.getCreatedAt())
-                    .status(transaction.getStatus().name())
+                    .amount(savedTransaction.getAmount())
+                    .transactionDate(savedTransaction.getCreatedAt())
+                    .status(savedTransaction.getStatus().name())
                     .build();
-        }catch (Exception e) {
-            log.error("Error transer user with email: {}", e);
-            throw new RuntimeException("Error creating user");
-
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
