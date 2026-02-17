@@ -1,4 +1,4 @@
-💳 Payment API — Backend de Banco Digital
+#💳 Payment API — Backend de Banco Digital
 
 API REST em Java + Spring Boot que simula operações essenciais de um banco digital: criação de usuários, contas bancárias e transferências financeiras entre contas.
 
@@ -27,7 +27,9 @@ Integração com RabbitMQ para processamento assíncrono de transferências
 O sistema possui três entidades principais:
 
 <img width="646" height="495" alt="Modelo de dados Payment API" src="https://github.com/user-attachments/assets/e3504b2a-883d-449b-894c-9e6314de337e" />
+
 ⚙️ Como Rodar o Projeto
+
 ✅ Pré-requisitos
 
 Java 17 ou superior
