@@ -43,14 +43,23 @@ DTOs para isolamento de domínio
 🧠 Conceitos e Boas Práticas Demonstradas
 
 ✔️ Arquitetura em camadas bem definida
+
 ✔️ Modelagem relacional com JPA/Hibernate
+
 ✔️ Controle transacional com @Transactional
+
 ✔️ Validação de regras de negócio (saldo, transferências inválidas)
+
 ✔️ Tratamento global de exceções
+
 ✔️ Logs estruturados
+
 ✔️ DTOs para desacoplamento da camada de domínio
+
 ✔️ Integração com RabbitMQ para processamento assíncrono
+
 ✔️ Testes unitários com JUnit e Mockito
+
 
 🗂️ Modelagem de Dados
 
@@ -122,9 +131,13 @@ Maven 3.8+
 Git
 
 📥 Clonar o Repositório
+
 git clone https://github.com/Gabrqueiroz/payment-api.git
+
 cd payment-api
+
 ▶️ Executar a Aplicação
+
 ./mvnw spring-boot:run
 
 ou
