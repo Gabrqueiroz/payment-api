@@ -9,6 +9,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
+@Profile("!test")
 
 @Configuration
 public class RabbitConfig {
@@ -36,7 +39,7 @@ public class RabbitConfig {
     }
 
     @Autowired
-    private RabbitTemplate rabbitTemplate; // injetando RabbitTemplate
+    private RabbitTemplate rabbitTemplate;
 
     @PostConstruct
     public void init() {
